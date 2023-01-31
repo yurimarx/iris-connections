@@ -5,6 +5,8 @@ Parameter Version = "1.0.0";
 
 Parameter CHARSET = "utf-8";
 
+Parameter CONVERTINPUTSTREAM = 1;
+
 Parameter CONTENTTYPE = "application/json";
 
 Parameter HandleCorsRequest = 1;
@@ -19,10 +21,7 @@ XData UrlMap [ XMLNamespace = "http://www.intersystems.com/urlmap" ]
 <!-- Get namespace list -->
 <Route Url="/namespaces" Method="GET" Call="GetNamespaceList"/>
 <!-- Get class list -->
-<Route Url="/classes" Method="GET" Call="GetClassList"/>
-
-<!-- Get all records of Person class -->
-<Route Url="/persons/all" Method="GET" Call="GetAllPersons"/>
+<Route Url="/classes" Method="GET" Call="GetClassList" Cors="true"/>
 <!-- Swagger specs -->
 <Route Url="/_spec" Method="GET" Call="SwaggerSpec" />
 <!-- GET method to return JSON for a given person id-->
@@ -94,8 +93,9 @@ ClassMethod GetClassList() As %Status
 
     #dim tSC As %Status = $$$OK
 
-    Set %response.ContentType = ..#CONTENTTYPEJSON
-
+    Set %response.ContentType = "application/json"
+    Set %response.Headers("Access-Control-Allow-Origin")="*" 
+    
     Set tSC = ##class(dc.irisconnections.DictService).GetClassList(.result)
 
     Write result.%ToJSON()
@@ -203,47 +203,6 @@ ClassMethod SwaggerSpec() As %Status
   Set swagger.info.version = "0.1"
   Set swagger.host = "localhost:52773"
   Return ..%ProcessResult($$$OK, swagger)
-}
-
-ClassMethod OnPreDispatch(pUrl As %String, pMethod As %String, ByRef pContinue As %Boolean) As %Status
-{
-  SET tSC = $$$OK
-  TRY {
-    
-    // Set the return type according to the Accept type in the request. Default is application/json.
-    IF ('..AcceptsContentType(..#CONTENTTYPEJSON)) {
-      SET tSC = ..ReportHttpStatusCode(..#HTTP406NOTACCEPTABLE), pContinue=0
-      QUIT 
-        } ELSE {   
-      // This always returns json
-      SET %response.ContentType=..#CONTENTTYPEJSON
-        }
-        
-        
-        // read request object into %DynamicObject format
-    IF ((pMethod'="POST") && (pMethod'="PUT")) || (%request.Content="") {
-      SET %request.Content = {}
-    } ELSE {
-      IF '$isobject(%request.Content) {
-        SET tContent = %request.Content
-      } ELSE {
-        SET tContent = ""
-        WHILE '%request.Content.AtEnd {
-          SET tContent = tContent_%request.Content.Read()
-        }
-      }
-      IF (tContent="") {
-        SET %request.Content = {}
-      } ELSE {
-        SET tContent = $zconvert(tContent, "I", "UTF8")
-        SET %request.Content = ##class(%Library.DynamicObject).%FromJSON(tContent)
-      }
-    }
-        
-  } CATCH ex {
-    SET tSC = ex.AsStatus()
-  }
-  QUIT ##class(%iKnow.REST.Base).%ErrorHandler(tSC, .pContinue)
 }
 
 ClassMethod %ProcessResult(pStatus As %Status = {$$$OK}, pResult As %DynamicObject = "") As %Status [ Internal ]
