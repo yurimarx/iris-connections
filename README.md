@@ -33,7 +33,7 @@ Open the following to see your source-code dependencies:
 localhost:52773/connections/index.html 
 ```
 
-![IRIS Connections screen](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+![IRIS Connections screen](https://github.com/yurimarx/iris-connections/raw/master/irisconnectionspitch.gif)
 
 
 ## See app API
