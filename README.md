@@ -25,13 +25,18 @@ $ docker-compose up -d --build
 ```
 
 
-## See your source code dependencies
+## See app UI
 
 Open the following to see your source-code dependencies:
 
 ```
 localhost:52773/connections/index.html 
 ```
+
+![IRIS Connections screen](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
+
+
+## See app API
 
 If you want yo see your dependencies from a REST API, you can get swagger Open API 2.0 documentation on:
 ```
