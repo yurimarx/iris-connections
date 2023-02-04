@@ -13,7 +13,7 @@ import { Node } from './node';
 })
 export class NetworkComponent implements OnInit, AfterViewInit {
     @ViewChild('visNetwork', { static: false }) visNetwork!: ElementRef;
-    public networkInstance: any;
+    public networkInstance: Network = {} as Network;
     public networkList: IrisNetwork[] = <IrisNetwork[]>[];
 
     constructor(private networkService: NetworkService, 
@@ -35,6 +35,7 @@ export class NetworkComponent implements OnInit, AfterViewInit {
               let nodeItem = <Node>{};
               nodeItem.id = element.name;
               nodeItem.label = element.name;
+              nodeItem.shape = 'box';
               nodeList.push(nodeItem);
             });
             const nodes = new DataSet<any>(nodeList);
@@ -54,7 +55,23 @@ export class NetworkComponent implements OnInit, AfterViewInit {
             const data = { nodes, edges };
    
             const container = this.visNetwork;
-            this.networkInstance = new Network(container.nativeElement, data, {});
+            
+            var options = {
+              layout: {
+                hierarchical: {
+                  direction: 'UD',
+                  sortMethod: "directed",
+                },
+              },
+              physics: {
+                hierarchicalRepulsion: {
+                  avoidOverlap: 0.1,
+                },
+              },
+            };
+
+            
+            this.networkInstance = new Network(container.nativeElement, data, options);
 
         },
         error: error => {

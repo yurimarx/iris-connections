@@ -1,0 +1,10 @@
+<p-accordion [multiple]="true">
+    <p-accordionTab header="Class Mindmap">
+        <p-scrollPanel [style]="{width: '100%', height: '500px'}">
+            <svg #svg style="height: 600px; width: 100%;"></svg>
+        </p-scrollPanel>
+    </p-accordionTab>
+    <p-accordionTab header="Markdown class documentation">
+        <nu-markdown [value]="content"></nu-markdown>
+    </p-accordionTab>
+</p-accordion>

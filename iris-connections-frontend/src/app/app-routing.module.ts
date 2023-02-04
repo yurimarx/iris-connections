@@ -10,6 +10,7 @@ import { AppLayoutComponent } from "./layout/app.layout.component";
                 path: '', component: AppLayoutComponent,
                 children: [
                     { path: 'network', loadChildren: () => import('./network/network.module').then(m => m.NetworkModule) },
+                    { path: 'mindmap', loadChildren: () => import('./mindmap/mindmap.module').then(m => m.MindmapModule) }
                 ]
             },
             { path: 'notfound', component: NotfoundComponent },

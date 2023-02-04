@@ -22,6 +22,8 @@ XData UrlMap [ XMLNamespace = "http://www.intersystems.com/urlmap" ]
 <Route Url="/namespaces" Method="GET" Call="GetNamespaceList"/>
 <!-- Get class list -->
 <Route Url="/classes" Method="GET" Call="GetClassList" Cors="true"/>
+<!-- Get class list -->
+<Route Url="/inventory" Method="GET" Call="GetClassInventoryInMarkdown" Cors="true"/>
 <!-- Swagger specs -->
 <Route Url="/_spec" Method="GET" Call="SwaggerSpec" />
 <!-- GET method to return JSON for a given person id-->
@@ -99,6 +101,22 @@ ClassMethod GetClassList() As %Status
     Set tSC = ##class(dc.irisconnections.DictService).GetClassList(.result)
 
     Write result.%ToJSON()
+    
+    Quit tSC
+}
+
+/// List current classes
+ClassMethod GetClassInventoryInMarkdown() As %Status
+{
+
+    #dim tSC As %Status = $$$OK
+
+    Set %response.ContentType = "text/plain"
+    Set %response.Headers("Access-Control-Allow-Origin")="*" 
+    
+    Set tSC = ##class(dc.irisconnections.DictService).GetInventoryInMarkdown(.result)
+
+    Do result.OutputToDevice()
     
     Quit tSC
 }

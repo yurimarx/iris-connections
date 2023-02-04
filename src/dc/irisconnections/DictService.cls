@@ -25,7 +25,7 @@ ClassMethod GetNamespaceList(Output namespaceList As %DynamicArray) As %Status
     Return tSC
 }
 
-/// Description
+/// Get class dependencies list
 ClassMethod GetClassList(Output classList As %DynamicArray) As %Status
 {
     Set tSC = $$$OK
@@ -101,6 +101,88 @@ ClassMethod GetClassList(Output classList As %DynamicArray) As %Status
             Set classList.%Get(removeKey).content = ""
         }
     
+    } Catch ex {
+        Set tSC=ex.AsStatus()
+    }
+    
+    Quit status
+}
+
+/// Get Markdown class inventory
+ClassMethod GetInventoryInMarkdown(Output mdContent As %Stream.GlobalCharacter) As %Status
+{
+    Set tSC = $$$OK 
+
+    Set mdContent = ##class(%Stream.GlobalCharacter).%New()
+
+    Do mdContent.WriteLine("# Classes Inventory")
+    
+    Set classList = ##class(%DynamicArray).%New()
+
+    Try {
+        Set stmt=##class(%SQL.Statement).%New()
+        Set status = stmt.%PrepareClassQuery("%Dictionary.ClassDefinition","Summary")
+        Set rset=stmt.%Execute()
+        
+        While rset.%Next() {
+            If (($FIND(rset.%Get("Name"), "%") '= 2) &&
+                ($FIND(rset.%Get("Name"), "Ens.") '= 5) &&
+                ($FIND(rset.%Get("Name"), "EnsLib.") '= 8) &&
+                ($FIND(rset.%Get("Name"), "EnsPortal.") '= 11) &&
+                (rset.%Get("System") = "0")) {
+
+                Do ##class(%Compiler.UDL.TextServices).GetTextAsString($NAMESPACE, rset.%Get("Name"), .text)
+                
+                Set classDetails = ##class(%Dictionary.ClassDefinition).%OpenId(rset.%Get("Name"))
+
+                Do mdContent.WriteLine("## "_rset.%Get("Name"))
+                
+                Do mdContent.WriteLine("### Description: "_classDetails.Description)
+                
+                If rset.%Get("Super") '= "" {
+                    Do mdContent.WriteLine("### Super: "_rset.%Get("Super"))
+                }
+
+                If rset.%Get("Persistent") '= "0" {
+                    Do mdContent.WriteLine("### Persistent: Yes")
+                } Else {
+                    Do mdContent.WriteLine("### Persistent: No")
+                }
+
+                If rset.%Get("Serial") '= "0" {
+                    Do mdContent.WriteLine("### Serial: Yes")
+                } Else {
+                    Do mdContent.WriteLine("### Serial: No")
+                }
+
+                If rset.%Get("SqlTableName") '= "" {
+                    Do mdContent.WriteLine("### SQL Table Name: "_rset.%Get("SqlTableName"))
+                }
+
+                Set countProperties = classDetails.Properties.Count()
+
+                If countProperties > 0 {
+                    Do mdContent.WriteLine("### Class properties: ")
+                }
+
+                For i = 1:1:countProperties {
+                    Do mdContent.WriteLine("- "_classDetails.Properties.GetAt(i).Name_": "_classDetails.Properties.GetAt(i).Type)
+                }
+
+                Set countMethods = classDetails.Methods.Count()
+                
+                If countMethods > 0 {
+                    Do mdContent.WriteLine("### Class methods: ")
+                }
+
+                For j = 1:1:countMethods {
+                    Do mdContent.WriteLine("- "_classDetails.Methods.GetAt(j).Name_": "_classDetails.Methods.GetAt(j).ReturnType)
+                }
+
+                Do mdContent.WriteLine("")
+            }
+        }
+
     } Catch ex {
         Set tSC=ex.AsStatus()
     }

@@ -7,12 +7,16 @@ import { NotfoundComponent } from './notfound/notfound.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BasicAuthInterceptor } from './security';
 import { BrowserModule } from '@angular/platform-browser';
+import { NuMarkdownModule } from '@ng-util/markdown';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [
         AppComponent, NotfoundComponent
     ],
     imports: [
+        FormsModule,
+        NuMarkdownModule.forRoot(),
         AppRoutingModule,
         AppLayoutModule,
         BrowserModule,
