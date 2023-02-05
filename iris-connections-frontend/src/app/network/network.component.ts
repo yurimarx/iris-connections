@@ -9,12 +9,14 @@ import { Node } from './node';
 
 @Component({
     templateUrl: './network.component.html',
+    styleUrls: ['./network.css'],
     providers: [MessageService, NetworkService]
 })
 export class NetworkComponent implements OnInit, AfterViewInit {
     @ViewChild('visNetwork', { static: false }) visNetwork!: ElementRef;
     public networkInstance: Network = {} as Network;
     public networkList: IrisNetwork[] = <IrisNetwork[]>[];
+    public scale = 1.0;
 
     constructor(private networkService: NetworkService, 
                 private messageService: MessageService) {}
@@ -23,6 +25,20 @@ export class NetworkComponent implements OnInit, AfterViewInit {
    
     ngAfterViewInit(): void {
       this.listNetwork();
+    }
+
+    reset() {
+      this.networkInstance.fit();
+    }
+
+    zoomIn() {
+      this.scale = this.scale + 0.1
+      this.networkInstance.moveTo({scale: this.scale})
+    }
+
+    zoomOut() {
+      this.scale = this.scale - 0.1
+      this.networkInstance.moveTo({scale: this.scale})
     }
 
     public listNetwork(): void {
@@ -59,19 +75,24 @@ export class NetworkComponent implements OnInit, AfterViewInit {
             var options = {
               layout: {
                 hierarchical: {
-                  direction: 'UD',
+                  direction: "UD",
                   sortMethod: "directed",
                 },
               },
+              interaction: {
+                navigationButtons: true,
+                keyboard: true,
+              },
               physics: {
                 hierarchicalRepulsion: {
-                  avoidOverlap: 0.1,
+                  avoidOverlap: 1.0,
                 },
-              },
+              }
             };
 
             
             this.networkInstance = new Network(container.nativeElement, data, options);
+            this.scale = this.networkInstance.getScale();
 
         },
         error: error => {

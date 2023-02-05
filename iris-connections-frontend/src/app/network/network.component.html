@@ -1,5 +1,6 @@
-<div class="grid">
-    <div class="col-12">
-        <div style="height: 560px;" id="visNetwork" #visNetwork></div>
-    </div>
-</div>
+<button pButton pRipple type="button" icon="pi pi-search-plus" class="p-button-rounded mr-2" (click)="zoomIn()"></button>
+<button pButton pRipple type="button" icon="pi pi-search-minus" class="p-button-rounded mr-2" (click)="zoomOut()"></button>
+<button pButton pRipple type="button" icon="pi pi-replay" class="p-button-rounded mr-2" (click)="reset()"></button>
+<p-scrollPanel [style]="{width: '100%', height: '580px'}">
+    <div style="height: 700px; width: 100%;" id="visNetwork" #visNetwork></div>
+</p-scrollPanel>
